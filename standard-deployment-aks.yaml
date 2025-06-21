@@ -1,0 +1,105 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: <place-holder-service-account-name>
+  annotations:
+    azure.workload.identity/client-id: <place-holder-managed-identity-id>
+    azure.workload.identity/tenant-id: <place-holder-tenant-id>
+---
+apiVersion: secrets-store.csi.x-k8s.io/v1
+kind: SecretProviderClass
+metadata:
+  name: <place-holder-secret-provider-name>
+spec:
+  provider: azure
+  parameters:
+    usePodIdentity: "false"
+    useVMManagedIdentity: "true"
+    userAssignedIdentityID: <place-holder-managed-identity-id>
+    keyvaultName: <placeholder-key-vault-name>
+    objects: |
+      array:
+        - |
+          objectName: aks-tme-lab-one
+          objectType: secret
+    tenantId: <place-holder-tenant-id>
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: <place-holder-deployment-name>
+  labels:
+    app: <place-holder-deployment-name>
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: <place-holder-deployment-name>
+  template:
+    metadata:
+      labels:
+        app: <place-holder-deployment-name>
+        azure.workload.identity/use: "true"
+    spec:
+      volumes:
+      - name: cert-volume
+        csi:
+          driver: secrets-store.csi.k8s.io
+          readOnly: true
+          volumeAttributes:
+            secretProviderClass: azure-kv-cert
+      containers:
+      - name: <place-holder-deployment-name>
+        image: <place-holder-container-image>
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8443
+        env:
+        - name: <placeholder-environment-variable-name>
+          value: <placeholder-environment-variable-value>
+        volumeMounts:
+        - name: cert-volume
+          mountPath: "/mnt/secrets-store"
+          readOnly: true
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      serviceAccountName: <place-holder-service-account-name>
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nepeters-app-public-https
+spec:
+  selector:
+    app: nepeters-app-public-https
+  ports:
+    - name: http
+      protocol: TCP
+      port: 8443
+      targetPort: 8443
+  type: ClusterIP
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: <place-holder-ingress-name>
+  annotations:
+    appgw.ingress.kubernetes.io/appgw-ssl-certificate: <place-holder-cert-name>
+    appgw.ingress.kubernetes.io/backend-protocol: https
+    appgw.ingress.kubernetes.io/connection-draining: "true"
+    appgw.ingress.kubernetes.io/backend-hostname: <place-holder-domain-name>
+    appgw.ingress.kubernetes.io/connection-draining-timeout: "30"
+    appgw.ingress.kubernetes.io/request-timeout: "120"
+    appgw.ingress.kubernetes.io/backend-path-prefix: "/"
+spec:
+  ingressClassName: azure-application-gateway
+  rules:
+  - http:
+      paths:
+      - backend:
+          service:
+            name: <place-holder-service-name>
+            port:
+              number: 8443
+        path: <place-holder-ingress-path>
+        pathType: Prefix
