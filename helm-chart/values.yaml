@@ -1,0 +1,53 @@
+## Default values for SCE AKS deployment
+## This is a YAML-formatted file.
+## Declare variables to be passed into your templates.
+
+# Application configuration
+app:
+  name: <placeholder>
+
+# Replica count for the deployment
+replicaCount: <placeholder>
+
+# Image configuration
+image:
+  repository: <placeholder>
+  tag: latest
+  pullPolicy: Always
+
+# Service account configuration
+serviceAccount:
+  name: <placeholder>
+
+# Secret provider configuration
+secretProvider:
+  name: <placeholder>
+
+# Azure Identity configuration
+identity:
+  clientId: <placeholder> 
+  tenantId: <placeholder>
+
+# Key Vault configuration
+keyvault:
+  name: <placeholder>
+  secretName: <placeholder>
+
+# Service configuration
+service:
+  name: <placeholder>
+  type: ClusterIP
+  port: 8443
+  targetPort: 8443
+
+# Ingress configuration
+ingress:
+  name: <placeholder>
+  certificate: <placeholder>
+  hostname: <placeholder>
+  path: <placeholder>
+
+# Environment variables
+env:
+  - name: <placeholder>
+    value: <placeholder>

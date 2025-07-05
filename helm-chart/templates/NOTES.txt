@@ -1,0 +1,23 @@
+Thank you for installing {{ .Chart.Name }} version {{ .Chart.Version }}.
+
+Your release is named {{ .Release.Name }}.
+
+To verify the deployment status:
+  kubectl get pods -l app={{ .Values.app.name }}
+
+To get the service URL:
+{{- if eq .Values.service.type "LoadBalancer" }}
+  export SERVICE_IP=$(kubectl get svc {{ .Values.service.name }} --template "{{ "{{ range (index .status.loadBalancer.ingress 0) }}{{ . }}{{ end }}" }}")
+  echo http://$SERVICE_IP:{{ .Values.service.port }}
+{{- else if eq .Values.service.type "ClusterIP" }}
+  kubectl port-forward svc/{{ .Values.service.name }} {{ .Values.service.port }}:{{ .Values.service.port }}
+  echo "Visit http://localhost:{{ .Values.service.port }} to access your application"
+{{- end }}
+
+To check logs:
+  kubectl logs -l app={{ .Values.app.name }}
+
+For Ingress access:
+  Your application should be available at: https://{{ .Values.ingress.hostname }}{{ .Values.ingress.path }}
+
+For more information, please refer to the README.md file.
