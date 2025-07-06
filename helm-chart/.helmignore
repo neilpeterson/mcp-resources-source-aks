@@ -21,3 +21,4 @@
 .idea/
 *.tmproj
 .vscode/
+.dummy-for-mcp-validation
